@@ -56,3 +56,10 @@ module "lb-backend" {
   backend_bucket_name = google_storage_bucket.static_site.name
   enable_cdn          = true
 }
+
+resource "google_dns_managed_zone" "static_site" {
+  name        = "resume-dns-zone"
+  dns_name    = "${var.my_domain}."
+  description = "DNS zone for public resume static site."
+  project     = var.fe_project_id
+}
