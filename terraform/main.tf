@@ -105,3 +105,11 @@ resource "google_cloud_run_v2_service" "visitor_counter" {
     }
   }
 }
+
+# Create Firestore Datastore DB
+resource "google_firestore_database" "visitors" {
+  project = var.be_project_id
+  name        = "resume-visitors"
+  location_id = var.be_region
+  type        = "DATASTORE_MODE"
+}
