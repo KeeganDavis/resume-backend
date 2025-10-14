@@ -113,3 +113,15 @@ resource "google_firestore_database" "visitors" {
   location_id = var.be_region
   type        = "DATASTORE_MODE"
 }
+
+# Fetch the Compute Engine default service account email for this project
+data "google_compute_default_service_account" "this" {
+  project = var.be_project_id
+}
+
+# Update IAM policy for Compute Engine default service account to access datastore db
+resource "google_project_iam_member" "compute_sa_datastore_user" {
+  project = var.be_project_id
+  role    = "roles/datastore.user"
+  member  = "serviceAccount:${data.google_compute_default_service_account.this.email}"
+}
