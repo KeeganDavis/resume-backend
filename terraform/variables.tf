@@ -41,3 +41,10 @@ variable "gh_frontend_repo" {
   type = string
   # default = ""
 }
+
+# GitHub repos that may deploy
+variable "gh_backend_repo" {
+  description = "GitHub repo for backend code"
+  type = string
+  # default = ""
+}
