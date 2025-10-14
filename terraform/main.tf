@@ -145,3 +145,40 @@ resource "google_project_iam_member" "resume_api_sa_run_invoker" {
   role    = "roles/run.invoker"
   member  = "serviceAccount:${google_service_account.resume_api_sa.email}"
 }
+
+# Create API Gateway
+resource "google_api_gateway_api" "resume" {
+  project = var.be_project_id
+  provider = google-beta
+  api_id = "resume-api"
+}
+
+# Create API Gateway config
+resource "google_api_gateway_api_config" "resume" {
+  project = var.be_project_id
+  provider = google-beta
+  api = google_api_gateway_api.resume.api_id
+  display_name = "resume-api-cfg"
+
+  openapi_documents {
+    document {
+      path = "openapi2-run.yaml"
+      contents = base64encode(templatefile("${path.module}/../api/openapi2-run.yaml.tftpl", {
+        backend_run_uri = google_cloud_run_v2_service.visitor_counter.uri
+      }))
+    }
+  }
+  lifecycle {create_before_destroy = true}
+
+  depends_on = [google_cloud_run_v2_service.visitor_counter]
+}
+
+# Create API Gateway gateway
+resource "google_api_gateway_gateway" "resume" {
+  project = var.be_project_id
+  provider = google-beta
+  api_config = google_api_gateway_api_config.resume.id
+  gateway_id = "resume-api-gateway"
+  display_name = "resume-api-gateway"
+  region = var.be_region
+}
