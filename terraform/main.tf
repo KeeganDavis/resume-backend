@@ -82,3 +82,19 @@ resource "google_dns_record_set" "cname" {
   project      = var.fe_project_id
   rrdatas      = ["${var.my_domain}."]
 }
+
+# Create Cloud Run instance
+resource "google_cloud_run_v2_service" "visitor_counter" {
+  project = var.be_project_id
+  name     = "resume-visitor-counter"
+  location = var.be_region
+  deletion_protection = false
+  ingress = "INGRESS_TRAFFIC_ALL"
+
+  template {
+    containers {
+      # Placeholder image
+      image = "us-docker.pkg.dev/cloudrun/container/hello"
+    }
+  }
+}
