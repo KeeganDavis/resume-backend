@@ -32,3 +32,27 @@ resource "google_storage_bucket_iam_member" "public_rule" {
   role   = "roles/storage.objectViewer"
   member = "allUsers"
 }
+
+# Create load balancer and SSL certificates
+module "lb-frontend" {
+  source  = "terraform-google-modules/lb-http/google//modules/frontend"
+  version = "~> 12.0"
+
+  project_id    = var.fe_project_id
+  name          = "resume-lb-fe"
+
+  http_forward = false
+  managed_ssl_certificate_domains = [var.my_domain, "www.${var.my_domain}"]
+  ssl           = true
+  url_map_input = module.lb-backend.backend_service_info
+}
+
+module "lb-backend" {
+  source  = "terraform-google-modules/lb-http/google//modules/backend"
+  version = "~> 12.0"
+
+  project_id          = var.fe_project_id
+  name                = "resume-be-bucket"
+  backend_bucket_name = google_storage_bucket.static_site.name
+  enable_cdn          = true
+}
