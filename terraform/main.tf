@@ -182,6 +182,15 @@ resource "google_api_gateway_gateway" "resume" {
   display_name = "resume-api-gateway"
   region = var.be_region
 }
+  
+# Create Artifact Registry repo
+resource "google_artifact_registry_repository" "resume_repo" {
+  project = var.be_project_id
+  location      = var.be_region
+  repository_id = "resume-repo"
+  description   = "docker repo to hold cloud run visitor counter app"
+  format        = "DOCKER"
+}
 
 # Workload Identity Federation and service account setup to GitHub fe repo
 resource "google_iam_workload_identity_pool" "gh_fe" {
