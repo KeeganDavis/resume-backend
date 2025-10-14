@@ -29,3 +29,9 @@ variable "be_region" {
   type = string
 #   default = ""
 }
+
+variable "my_user" {
+  description = "My GCP email. (Ex: example@gmail.com)"
+  type = string
+  # default = ""
+}
