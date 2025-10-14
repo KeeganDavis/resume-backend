@@ -35,3 +35,9 @@ variable "my_user" {
   type = string
   # default = ""
 }
+
+variable "gh_frontend_repo" {
+  description = "GitHub repo for frontend code"
+  type = string
+  # default = ""
+}
