@@ -63,3 +63,22 @@ resource "google_dns_managed_zone" "static_site" {
   description = "DNS zone for public resume static site."
   project     = var.fe_project_id
 }
+
+resource "google_dns_record_set" "a" {
+  name         = "${var.my_domain}."
+  managed_zone = google_dns_managed_zone.static_site.name
+  type         = "A"
+  ttl          = 300
+  project     = var.fe_project_id
+
+  rrdatas = [module.lb-frontend.external_ip]
+}
+
+resource "google_dns_record_set" "cname" {
+  name         = "www.${var.my_domain}."
+  managed_zone = google_dns_managed_zone.static_site.name
+  type         = "CNAME"
+  ttl          = 300
+  project      = var.fe_project_id
+  rrdatas      = ["${var.my_domain}."]
+}
