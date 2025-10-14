@@ -182,7 +182,7 @@ resource "google_api_gateway_gateway" "resume" {
   display_name = "resume-api-gateway"
   region = var.be_region
 }
-
+  
 # Create Artifact Registry repo
 resource "google_artifact_registry_repository" "resume_repo" {
   project = var.be_project_id
@@ -190,4 +190,55 @@ resource "google_artifact_registry_repository" "resume_repo" {
   repository_id = "resume-repo"
   description   = "docker repo to hold cloud run visitor counter app"
   format        = "DOCKER"
+}
+
+# Workload Identity Federation and service account setup to GitHub fe repo
+resource "google_iam_workload_identity_pool" "gh_fe" {
+  project = var.fe_project_id
+  workload_identity_pool_id = "github-fe"
+  display_name = "GitHub frontend OIDC pool"
+  disabled = false
+}
+
+resource "google_iam_workload_identity_pool_provider" "gh_fe" {
+  project = var.fe_project_id
+  workload_identity_pool_id = google_iam_workload_identity_pool.gh_fe.workload_identity_pool_id
+  workload_identity_pool_provider_id = "github-fe"
+  display_name = "GitHub"
+  
+  oidc { issuer_uri = "https://token.actions.githubusercontent.com" }
+
+  attribute_mapping = {
+    "google.subject"       = "assertion.sub"        
+    "attribute.sub"        = "attribute.sub"        
+    "attribute.repository" = "assertion.repository"
+  }
+
+  attribute_condition = "attribute.repository==assertion.repository"
+}
+
+# Frontend CI/CD SA
+resource "google_service_account" "gh_fe" {
+  account_id = "gh-frontend-deployer"
+  display_name = "GitHub Frontend Deployer"
+  project = var.fe_project_id
+}
+
+# FRONTEND: allow the repo to impersonate SA (any branch)
+resource "google_service_account_iam_member" "frontend_wif" {
+  service_account_id = google_service_account.gh_fe.name
+  role               = "roles/iam.workloadIdentityUser"
+  member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.gh_fe.name}/attribute.repository/${var.gh_frontend_repo}"
+}
+
+resource "google_storage_bucket_iam_member" "fe_writer" {
+  bucket = google_storage_bucket.static_site.name
+  role = "roles/storage.objectAdmin"
+  member = "serviceAccount:${google_service_account.gh_fe.email}"
+}
+
+resource "google_project_iam_member" "fe_lb_admin" {
+  project = var.fe_project_id
+  role = "roles/compute.loadBalancerAdmin"
+  member = "serviceAccount:${google_service_account.gh_fe.email}"
 }
