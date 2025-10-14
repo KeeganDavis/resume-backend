@@ -125,3 +125,23 @@ resource "google_project_iam_member" "compute_sa_datastore_user" {
   role    = "roles/datastore.user"
   member  = "serviceAccount:${data.google_compute_default_service_account.this.email}"
 }
+
+# Create service account for api to access cloud run
+resource "google_service_account" "resume_api_sa" {
+  account_id   = "resume-api-sa"
+  description = "Access cloud run visitor counter app for API"
+  project = var.be_project_id
+}
+# Add ownership of api-sa service account
+resource "google_service_account_iam_member" "resume_api_sa_admin" {
+  service_account_id = google_service_account.resume_api_sa.name
+  role               = "roles/iam.serviceAccountAdmin"
+  member             = "user:${var.my_user}"
+}
+
+# Update IAM policy for api-sa to have run invoker role
+resource "google_project_iam_member" "resume_api_sa_run_invoker" {
+  project = var.be_project_id
+  role    = "roles/run.invoker"
+  member  = "serviceAccount:${google_service_account.resume_api_sa.email}"
+}
