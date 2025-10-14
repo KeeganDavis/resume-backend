@@ -242,3 +242,59 @@ resource "google_project_iam_member" "fe_lb_admin" {
   role = "roles/compute.loadBalancerAdmin"
   member = "serviceAccount:${google_service_account.gh_fe.email}"
 }
+
+# Workload Identity Federation and service account setup to GitHub be repo
+resource "google_iam_workload_identity_pool" "gh_be" {
+  project                   = var.be_project_id
+  workload_identity_pool_id = "github-be-1"
+  display_name              = "GitHub backend OIDC pool"
+}
+
+resource "google_iam_workload_identity_pool_provider" "gh_be" {
+  project                            = var.be_project_id
+  workload_identity_pool_id          = google_iam_workload_identity_pool.gh_be.workload_identity_pool_id
+  workload_identity_pool_provider_id = "github-be"
+  display_name                       = "GitHub"
+
+  oidc { issuer_uri = "https://token.actions.githubusercontent.com" }
+
+  attribute_mapping = {
+    "google.subject"       = "assertion.sub"        
+    "attribute.sub"        = "attribute.sub"        
+    "attribute.repository" = "assertion.repository"
+  }
+
+  attribute_condition = "attribute.repository==assertion.repository"
+}
+
+# Backend CI/CD SA
+resource "google_service_account" "gh_be" {
+  account_id = "gh-backend-deployer"
+  display_name = "GitHub Backend Deployer"
+  project = var.be_project_id
+}
+
+# BACKEND: allow the repo to impersonate SA (any branch)
+resource "google_service_account_iam_member" "backend_wif" {
+  service_account_id = google_service_account.gh_be.name
+  role               = "roles/iam.workloadIdentityUser"
+  member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.gh_be.name}/attribute.repository/${var.gh_backend_repo}"
+}
+
+resource "google_project_iam_member" "be_ar_writer" {
+  project = var.be_project_id
+  role = "roles/artifactregistry.writer"
+  member = "serviceAccount:${google_service_account.gh_be.email}"
+}
+
+resource "google_project_iam_member" "be_api_gw_admin" {
+  project = var.be_project_id
+  role = "roles/apigateway.admin"
+  member = "serviceAccount:${google_service_account.gh_be.email}"
+}
+
+resource "google_project_iam_member" "be_run_admin" {
+  project = var.be_project_id
+  role = "roles/run.admin"
+  member = "serviceAccount:${google_service_account.gh_be.email}"
+}
