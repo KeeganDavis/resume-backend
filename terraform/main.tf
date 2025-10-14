@@ -83,6 +83,13 @@ resource "google_dns_record_set" "cname" {
   rrdatas      = ["${var.my_domain}."]
 }
 
+# initialize provider block for backend project
+provider "google" {
+  alias = "back_end"
+  project = var.be_project_id
+  region  = var.be_region
+}
+
 # Create Cloud Run instance
 resource "google_cloud_run_v2_service" "visitor_counter" {
   project = var.be_project_id
