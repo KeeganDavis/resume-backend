@@ -1,0 +1,22 @@
+# openapi2-run.yaml
+swagger: '2.0'
+info:
+  title: resume-api API for Cloud Run resume app
+  description: API on GCP API Gateway with a Cloud Run backend
+  version: 1.0.0
+schemes:
+- https
+produces:
+- application/json
+x-google-backend:
+  address: ${backend_run_uri}
+paths:
+  /:
+    get:
+      summary: Cloud Run update visitor count
+      operationId: visitor_count
+      responses:
+        '200':
+          description: A successful response
+          schema:
+            type: string
