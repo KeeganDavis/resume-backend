@@ -1,0 +1,37 @@
+name: dev-ci-backend
+
+on:
+  push:
+    branches: "main"
+  workflow_dispatch:
+
+jobs:
+  auth-build-deploy:
+    environment: dev
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        
+      # 1) Auth to Google with WIF
+      - name: Auth to Google Cloud
+        uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.SERVICE_ACCOUNT_EMAIL }}
+
+      - name: Setup gcloud
+        uses: google-github-actions/setup-gcloud@v3.0.1
+        with:
+            project_id: ${{ vars.GCP_PROJECT_ID }}
+
+      # 2) Apply Terraform to provision/refresh infra (uses remote state)
+      - name: Terraform Apply (infra)
+        working-directory: terraform/   # adjust path to your tf
+        run: |
+          terraform init -input=false -reconfigure
+          terraform apply -input=false -var-file="dev.tfvars" -auto-approve
