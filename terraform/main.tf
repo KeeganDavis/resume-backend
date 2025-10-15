@@ -5,6 +5,25 @@ provider "google" {
   region  = var.fe_region
 }
 
+# Bucket to hold Terraform remote state
+resource "google_storage_bucket" "backend_state" {
+  project = var.be_project_id
+  name          = "resume-site-tf-state"
+  location      = var.be_region
+  force_destroy = false
+  versioning {
+    enabled = true
+  }
+}
+
+# Remote backend setup with cloud storage bucket
+terraform {
+  backend "gcs" {
+    bucket = "resume-site-tf-state"   
+    prefix = "dev"          
+  }
+}
+
 # Create Google Cloud Storage bucket
 resource "google_storage_bucket" "static_site" {
   project = var.fe_project_id
