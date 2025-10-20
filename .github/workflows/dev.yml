@@ -21,17 +21,42 @@ jobs:
       - name: Auth to Google Cloud
         uses: google-github-actions/auth@v3
         with:
-          workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
+          workload_identity_provider: ${{ vars.WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ vars.SERVICE_ACCOUNT_EMAIL }}
+          project_id: ${{ vars.GCP_PROJECT_ID }}
 
       - name: Setup gcloud
-        uses: google-github-actions/setup-gcloud@v3.0.1
-        with:
-            project_id: ${{ vars.GCP_PROJECT_ID }}
+        uses: google-github-actions/setup-gcloud@v3
 
       # 2) Apply Terraform to provision/refresh infra (uses remote state)
       - name: Terraform Apply (infra)
-        working-directory: terraform/   # adjust path to your tf
+        working-directory: terraform/
         run: |
           terraform init -input=false -reconfigure
           terraform apply -input=false -var-file="dev.tfvars" -auto-approve
+
+      # 3) Build & push container image to Artifact Registry
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker ${{ vars.AR_LOCATION }}-docker.pkg.dev --quiet
+
+      - name: Build & Push
+        env:
+          IMAGE: ${{ vars.AR_LOCATION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/${{ vars.AR_REPOSITORY }}/backend:${{ github.sha }}
+        run: |
+          docker build -t "$IMAGE" app/
+          docker push "$IMAGE"
+          echo "IMAGE=$IMAGE" >> $GITHUB_ENV
+
+      # 4) Deploy to Cloud Run (gcloud)
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy ${{ vars.RUN_SERVICE }} \
+            --region ${{ vars.GCP_REGION }} \
+            --platform managed \
+            --image "$IMAGE" \
+            --quiet \
+            --set-env-vars LOG_LEVEL=info
+
+      - name: Show service URL
+        run: |
+          gcloud run services describe ${{ vars.RUN_SERVICE }} --region ${{ vars.GCP_REGION }} --format='value(status.url)'
