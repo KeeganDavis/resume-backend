@@ -21,9 +21,9 @@ jobs:
       - name: Auth to Google Cloud
         uses: google-github-actions/auth@v3
         with:
-          workload_identity_provider: ${{ vars.WORKLOAD_IDENTITY_PROVIDER }}
-          service_account: ${{ vars.SERVICE_ACCOUNT_EMAIL }}
-          project_id: ${{ vars.GCP_PROJECT_ID }}
+          workload_identity_provider: ${{ vars.BE_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.BE_SA_EMAIL }}
+          project_id: ${{ vars.BE_PROJECT_ID }}
 
       - name: Setup gcloud
         uses: google-github-actions/setup-gcloud@v3
@@ -36,6 +36,17 @@ jobs:
 
       - name: Terraform Apply (infra)
         working-directory: terraform/
+        env:
+          TF_VAR_fe_project_id: ${{ vars.FE_PROJECT_ID }}
+          TF_VAR_fe_region: ${{ vars.FE_REGION }}
+          TF_VAR_fe_project_num: ${{ vars.FE_PROJECT_NUM }}
+          TF_VAR_my_domain: ${{ vars.MY_DOMAIN }}
+          TF_VAR_my_user: ${{ vars.MY_USER }}
+          TF_VAR_be_project_id: ${{ vars.BE_PROJECT_ID }}
+          TF_VAR_be_region: ${{ vars.BE_REGION }}
+          TF_VAR_be_project_num: ${{ vars.BE_PROJECT_NUM }}
+          TF_VAR_gh_backend_repo: ${{ vars.GH_BACKEND_REPO }}
+          TF_VAR_gh_frontend_repo: ${{ vars.GH_FRONTEND_REPO }}
         run: |
           terraform init -input=false -reconfigure
           terraform apply -input=false -auto-approve
@@ -46,7 +57,7 @@ jobs:
 
       - name: Build & Push
         env:
-          IMAGE: ${{ vars.AR_LOCATION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/${{ vars.AR_REPOSITORY }}/backend:${{ github.sha }}
+          IMAGE: ${{ vars.AR_LOCATION }}-docker.pkg.dev/${{ vars.BE_PROJECT_ID }}/${{ vars.AR_REPOSITORY }}/backend:${{ github.sha }}
         run: |
           docker build -t "$IMAGE" app/
           docker push "$IMAGE"
@@ -56,7 +67,7 @@ jobs:
       - name: Deploy to Cloud Run
         run: |
           gcloud run deploy ${{ vars.RUN_SERVICE }} \
-            --region ${{ vars.GCP_REGION }} \
+            --region ${{ vars.BE_REGION }} \
             --platform managed \
             --image "$IMAGE" \
             --quiet \
@@ -64,4 +75,4 @@ jobs:
 
       - name: Show service URL
         run: |
-          gcloud run services describe ${{ vars.RUN_SERVICE }} --region ${{ vars.GCP_REGION }} --format='value(status.url)'
+          gcloud run services describe ${{ vars.RUN_SERVICE }} --region ${{ vars.BE_REGION }} --format='value(status.url)'
