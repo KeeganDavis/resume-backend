@@ -11,6 +11,11 @@ variable "fe_region" {
 #   default = ""
 }
 
+variable "fe_project_num" {
+  description = "Frontend GCP project number"
+  type = string
+}
+
 variable "my_domain" {
   description = "My public domain. (Ex: example.com)"
   type = string
@@ -28,6 +33,11 @@ variable "be_region" {
   description = "Backend project default region"
   type = string
 #   default = ""
+}
+
+variable "be_project_num" {
+  description = "Backend GCP project number"
+  type = string
 }
 
 variable "my_user" {
