@@ -318,8 +318,8 @@ resource "google_project_iam_member" "be_run_admin" {
   member = "serviceAccount:${google_service_account.gh_be.email}"
 }
 
-resource "google_storage_bucket_iam_member" "be_remote_state" {
-  bucket = google_storage_bucket.backend_state.name
+resource "google_project_iam_member" "be_remote_state" {
+  project = var.be_project_id
   role = "roles/storage.objectAdmin"
   member = "serviceAccount:${google_service_account.gh_be.email}"
 }
