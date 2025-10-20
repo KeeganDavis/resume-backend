@@ -1,0 +1,25 @@
+# Ignore common development files and directories
+.gitignore
+.DS_Store
+.vscode/
+node_modules/
+venv/
+.pytest_cache
+**/.git
+**/.github
+**/infra
+**/api
+__pycache__/
+*.pyc
+.env*
+tests/
+
+# Ignore log files and temporary files
+*.log
+tmp/
+
+# Ignore environment variables
+.env
+
+# Explicitly include a file that might otherwise be ignored
+# !src/important_config.js
