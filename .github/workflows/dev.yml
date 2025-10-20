@@ -29,6 +29,11 @@ jobs:
         uses: google-github-actions/setup-gcloud@v3
 
       # 2) Apply Terraform to provision/refresh infra (uses remote state)
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.6.0
+          
       - name: Terraform Apply (infra)
         working-directory: terraform/
         run: |
