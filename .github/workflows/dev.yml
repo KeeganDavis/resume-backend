@@ -35,7 +35,7 @@ jobs:
           TF_VAR_fe_region: ${{ vars.FE_REGION }}
           TF_VAR_fe_project_num: ${{ vars.FE_PROJECT_NUM }}
           TF_VAR_my_domain: ${{ vars.MY_DOMAIN }}
-          TF_VAR_gh_frontend_repo: ${{ vars.GH_FRONTEND_REPO }}
+          TF_VAR_gh_backend_repo: ${{ vars.GH_BACKEND_REPO }}
         run: |
           terraform init -input=false -reconfigure
           terraform apply -input=false -auto-approve
