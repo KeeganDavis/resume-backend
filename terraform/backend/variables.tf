@@ -1,10 +1,4 @@
-variable "my_user" {
-  description = "My GCP email. (Ex: example@gmail.com)"
-  type = string
-  # default = ""
-}
-
-# Backend project
+ # Backend project
 variable "be_project_id" {
   description = "Backend GCP project id"
   type = string

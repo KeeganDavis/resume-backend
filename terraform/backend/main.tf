@@ -97,7 +97,7 @@ resource "google_api_gateway_api_config" "resume" {
   openapi_documents {
     document {
       path = "openapi2-run.yaml"
-      contents = base64encode(templatefile("${path.module}/../api/openapi2-run.yaml.tftpl", {
+      contents = base64encode(templatefile("${path.module}/../../api/openapi2-run.yaml.tftpl", {
         backend_run_uri = google_cloud_run_v2_service.visitor_counter.uri
       }))
     }
@@ -182,8 +182,14 @@ resource "google_project_iam_member" "be_run_admin" {
   member = "serviceAccount:${google_service_account.gh_be.email}"
 }
 
-resource "google_project_iam_member" "be_remote_state" {
-  project = var.be_project_id
+resource "google_storage_bucket_iam_member" "be_remote_state_obj_admin" {
+  bucket = google_storage_bucket.backend_state.name
   role = "roles/storage.objectAdmin"
+  member = "serviceAccount:${google_service_account.gh_be.email}"
+}
+
+resource "google_storage_bucket_iam_member" "be_remote_state_reader" {
+  bucket = google_storage_bucket.backend_state.name
+  role = "roles/storage.legacyBucketReader"
   member = "serviceAccount:${google_service_account.gh_be.email}"
 }

@@ -15,7 +15,7 @@ output "artifact_registry_repo_uri" {
 
 output "be_workload_identity_provider" {
   description = "Backend Workload Identity provider ID for GitHub. Paste into GH env variable WORKLOAD_IDENTITY_PROVIDER in resume-backend repo"
-  value = "projects/${var.be_project_id}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.gh_be.workload_identity_pool_id}/providers/${google_iam_workload_identity_pool_provider.gh_be.workload_identity_pool_provider_id}"
+  value = "projects/${var.be_project_num}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.gh_be.workload_identity_pool_id}/providers/${google_iam_workload_identity_pool_provider.gh_be.workload_identity_pool_provider_id}"
 }
 
 output "be_deployer_sa" {
