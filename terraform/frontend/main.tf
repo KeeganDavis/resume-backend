@@ -138,7 +138,7 @@ resource "google_service_account" "gh_fe" {
 resource "google_service_account_iam_member" "frontend_wif" {
   service_account_id = google_service_account.gh_fe.name
   role               = "roles/iam.workloadIdentityUser"
-  member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.gh_fe.name}/attribute.repository/${var.gh_frontend_repo}"
+  member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.gh_fe.name}/attribute.repository/${var.gh_backend_repo}"
 }
 
 resource "google_storage_bucket_iam_member" "fe_writer" {

@@ -22,8 +22,8 @@ variable "my_domain" {
   # default = ""
 }
 
-variable "gh_frontend_repo" {
-  description = "GitHub repo for frontend code"
+variable "gh_backend_repo" {
+  description = "GitHub repo for backend code"
   type = string
   # default = ""
 }
