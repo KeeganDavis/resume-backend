@@ -6,7 +6,7 @@ provider "google" {
 }
 
 # Bucket to hold Terraform remote state
-resource "google_storage_bucket" "backend_state" {
+resource "google_storage_bucket" "remote_state_fe" {
   project = var.fe_project_id
   name          = "resume-site-tf-state-fe"
   location      = var.fe_region
@@ -150,5 +150,17 @@ resource "google_storage_bucket_iam_member" "fe_writer" {
 resource "google_project_iam_member" "fe_lb_admin" {
   project = var.fe_project_id
   role = "roles/compute.loadBalancerAdmin"
+  member = "serviceAccount:${google_service_account.gh_fe.email}"
+}
+
+resource "google_storage_bucket_iam_member" "fe_remote_state_obj_admin" {
+  bucket = google_storage_bucket.remote_state_fe.name
+  role = "roles/storage.objectAdmin"
+  member = "serviceAccount:${google_service_account.gh_fe.email}"
+}
+
+resource "google_storage_bucket_iam_member" "fe_remote_state_reader" {
+  bucket = google_storage_bucket.remote_state_fe.name
+  role = "roles/storage.legacyBucketReader"
   member = "serviceAccount:${google_service_account.gh_fe.email}"
 }

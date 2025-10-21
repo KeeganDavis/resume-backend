@@ -5,7 +5,7 @@ output "fe_bucket_name" {
 
 output "fe_workload_identity_provider" {
   description = "Frontend Workload Identity provider ID for GitHub. Paste into GH env variable WORKLOAD_IDENTITY_PROVIDER in resume-frontend repo"
-  value = "projects/${var.fe_project_id}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.gh_fe.workload_identity_pool_id}/providers/${google_iam_workload_identity_pool_provider.gh_fe.workload_identity_pool_provider_id}"
+  value = "projects/${var.fe_project_num}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.gh_fe.workload_identity_pool_id}/providers/${google_iam_workload_identity_pool_provider.gh_fe.workload_identity_pool_provider_id}"
 }
 
 output "fe_deployer_sa" {
