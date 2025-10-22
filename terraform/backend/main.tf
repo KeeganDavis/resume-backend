@@ -59,7 +59,6 @@ resource "google_api_gateway_api_config" "resume" {
   project = var.be_project_id
   provider = google-beta
   api = google_api_gateway_api.resume.api_id
-  display_name = "resume-api-cfg"
 
   openapi_documents {
     document {
