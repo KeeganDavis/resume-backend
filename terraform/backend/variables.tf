@@ -10,3 +10,8 @@ variable "be_region" {
   type = string
 #   default = ""
 }
+
+variable "app_image_url" {
+  description = "Image url to Artifact Registry"
+  type = string
+}
