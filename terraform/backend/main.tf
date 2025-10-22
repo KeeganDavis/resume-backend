@@ -24,8 +24,19 @@ resource "google_cloud_run_v2_service" "visitor_counter" {
   template {
     containers {
       image = var.app_image_url
+
+      env {
+        name = "PROJECT"
+        value = var.be_project_id
+      }
+
+      env {
+        name = "DATABASE"
+        value = google_firestore_database.visitors.name
+      }
     }
   }
+  depends_on = [ google_firestore_database.visitors ]
 }
 
 # Create Firestore Datastore DB

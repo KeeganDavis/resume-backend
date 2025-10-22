@@ -6,7 +6,11 @@ from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app, origins=["https://keeganrdavis.com"])
-client = datastore.Client(project='', database='')
+
+PROJECT = os.getenv("GOOGLE_CLOUD_PROJECT") or os.getenv("PROJECT")
+DATABASE = os.getenv("DATABASE", "(default)")
+
+client = datastore.Client(project=PROJECT, database=DATABASE)
 
 @app.route("/")
 def create_or_update_entity():
