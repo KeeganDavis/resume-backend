@@ -27,6 +27,10 @@ resource "google_cloud_run_v2_service" "visitor_counter" {
       image = "us-docker.pkg.dev/cloudrun/container/hello"
     }
   }
+
+  lifecycle {
+    ignore_changes = [template[0].containers[0].image]
+  }
 }
 
 # Create Firestore Datastore DB
