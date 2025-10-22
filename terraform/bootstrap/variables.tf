@@ -16,12 +16,6 @@ variable "fe_project_num" {
   type = string
 }
 
-variable "my_domain" {
-  description = "My public domain. (Ex: example.com)"
-  type = string
-  # default = ""
-}
-
 # Backend project
 variable "be_project_id" {
   description = "Backend GCP project id"

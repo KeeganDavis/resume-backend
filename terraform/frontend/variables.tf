@@ -11,19 +11,8 @@ variable "fe_region" {
 #   default = ""
 }
 
-variable "fe_project_num" {
-  description = "Frontend GCP project number"
-  type = string
-}
-
 variable "my_domain" {
   description = "My public domain. (Ex: example.com)"
-  type = string
-  # default = ""
-}
-
-variable "gh_backend_repo" {
-  description = "GitHub repo for backend code"
   type = string
   # default = ""
 }
