@@ -27,3 +27,8 @@ variable "gh_backend_repo" {
   type = string
   # default = ""
 }
+
+variable "gh_fe_sa" {
+  description = "Service account email for GitHub frontend repo"
+  type = string
+}

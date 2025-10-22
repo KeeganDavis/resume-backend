@@ -27,3 +27,13 @@ variable "gh_backend_repo" {
   type = string
   # default = ""
 }
+
+variable "gh_be_sa" {
+  description = "Service account email for backend repo"
+  type = string
+}
+
+variable "be_remote_state_bucket" {
+  description = "Name of backend remote state cloud storage bucket"
+  type = string
+}
