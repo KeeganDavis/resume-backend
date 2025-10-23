@@ -68,6 +68,13 @@ resource "google_service_account_iam_member" "frontend_wif" {
   member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.gh_fe.name}/attribute.repository/${var.gh_backend_repo}"
 }
 
+# FRONTEND: allow the repo to impersonate SA (any branch)
+resource "google_service_account_iam_member" "frontend_repo_wif" {
+  service_account_id = google_service_account.gh_fe.name
+  role               = "roles/iam.workloadIdentityUser"
+  member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.gh_fe.name}/attribute.repository/${var.gh_frontend_repo}"
+}
+
 resource "google_project_iam_member" "ci_storage_admin" {
   project = var.fe_project_id
   role    = "roles/storage.admin"
@@ -218,3 +225,8 @@ resource "google_project_iam_member" "be_run_admin" {
   member = "serviceAccount:${google_service_account.gh_be.email}"
 }
 
+resource "google_project_iam_member" "be_sa_user" {
+  project = var.be_project_id
+  role = "roles/iam.serviceAccountUser"
+  member = "serviceAccount:${google_service_account.gh_be.email}"
+}
