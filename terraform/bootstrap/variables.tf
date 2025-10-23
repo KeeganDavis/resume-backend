@@ -45,3 +45,8 @@ variable "gh_backend_repo" {
   type = string
   # default = ""
 }
+
+variable "gh_frontend_repo" {
+  description = "GitHub repo for frontend code"
+  type = string
+}
